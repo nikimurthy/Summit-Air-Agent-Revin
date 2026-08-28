@@ -108,6 +108,7 @@ Planned agent tools:
 - Handle multi-location issues better
 - Add database to store all call information. Use this to handle duplicate calls.
 - Add specific technician availability rather than assuming all technicians are available outside appointment slots
+- Change check_availability logic to loop through 30-min increments of the availability slots
 
 ## Cases to test for
 - Calling about multiple issues at once
@@ -121,4 +122,3 @@ Planned agent tools:
 
 ## Real World Considerations
 - How would someone be able to call back for human escalation if all slots are booked?
-- 

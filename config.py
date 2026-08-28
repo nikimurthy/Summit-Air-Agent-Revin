@@ -40,7 +40,8 @@ class BookingStatus(str, Enum):
 
 class EscalationStatus(str, Enum):
     NOT_REQUIRED = "not_required"
-    REQUESTED = "requested"
+    IMMEDIATE_REQUEST = "immediate_request"
+    CALLBACK_REQUEST = "callback_request"
 
 
 
