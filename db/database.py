@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS appointments (
     priority TEXT NOT NULL,
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
-    FOREIGN KEY (technician_id) REFERENCES technicians(id)
+    FOREIGN KEY (technician_id) REFERENCES technicians(id),
+    UNIQUE (technician_id, start_time)
 )
 """)
 

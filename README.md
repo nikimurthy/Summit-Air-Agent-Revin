@@ -19,6 +19,7 @@ The agent:
    - Residential or commercial
    - HVAC issue
    - Priority: routine, urgent, or emergency
+      - IF EMERGENCY: TRIGGER HUMAN ESCALATION IMMEDIATELY
    - Availability
 
 2. Validate that the caller's availability overlaps with Summit Air's business hours.
@@ -37,23 +38,32 @@ The agent:
 
 ### Routine
 - Search technicians in the caller's county first.
-- Search local availability within the next two weeks.
+- Search local availability in 2 week increments
 - If none is available, expand the search to all technicians.
+- All bookings must have 30 minute buffers before and after when compared to other bookings
 
 ### Urgent
 - Search all technicians for the earliest appointment compatible with the caller's availability.
+- No-buffer booking is allowed
+- Search availability in 1 week increments
 
 ### Emergency
-- Search all technicians for the earliest appointment compatible with the caller's availability.
-- Trigger human escalation.
+- Trigger human escalation immediately
 
 ## Demo Assumptions
 
 - 40 technicians
 - 3 service areas: County Alpha, County Bravo, and County Charlie
 - Business hours: Monday–Friday, 8 AM–5 PM
-- Appointments: 30 minutes with a 30-minute buffer
+- Appointments: 30 minutes with start-times on the hour or on the half-hour
 - Human escalation is mocked for the demo
+- One issue that exists across multiple locations in different counties will be treated as different issues for each location, and will require different service bookings
+- Customer availability for Urgent & Emergency is asked week by week
+- Customer availability for Routine is asked in 2 week incremenents
+- Escalation is caused by:
+   - Emergency issue
+   - 3 increments of unavailable bookings
+- 
 
 ## Architecture
 
@@ -66,7 +76,7 @@ The agent:
 
 - `database.py` — database connection and schema
 - `reset_database.py` — restores 40 standard technicians and clears appointments
-- `seed_database.py` — creates reproducible sample appointment data for testing
+- `set_sample_database.py` — creates reproducible sample appointment data for testing
 
 ## Tools
 
@@ -79,5 +89,36 @@ Planned agent tools:
 ## Current Questions
 
 - Are there specific buckets of HVAC issues that I should group by?
-- Should residential and commercial calls have different scheduling behavior?
-- Is it necessary to check for duplicate callers? Someone calling twice about the same issue once it has already been booked?
+- Can I assume appointments will only be booked on the half hour or hour? Rather than at an arbitrary time in-between?
+- How much leeway can I take with assumptions? Can I create the buffer rule for different priorities?
+
+## Building Plan
+- Build sample database
+- Build tool calling mechanisms
+- Connect VAPI AI
+- Define all prompts
+- Test all edge cases & implement random seed database generation
+- Display results on terminal
+
+## Nice to Have:
+- Implement technician latitude/longitude to find closest one
+- Add distinction for human escalation when a human is back during normal hours (no availability found, unable to decipher maintenance issue, commerical problem; maybe add another priority option which is "call-back") and human escalation that alerts someone outisde business hours for emergency situations
+- Store emergency calls in a database rather than null escalate function
+- Appointment schuduling that exists beyond half-hour marks
+- Handle multi-location issues better
+- Add database to store all call information. Use this to handle duplicate calls.
+- Add specific technician availability rather than assuming all technicians are available outside appointment slots
+
+## Cases to test for
+- Calling about multiple issues at once
+- Duplicate call about same issue
+- Caller unsure if commericial or residential
+- Providing schedule before asked by agent
+- Change appointment slot time to something other than 30 min
+
+## Changes made along the way
+- Changed county from being stored as string to integer to minimize compare errors
+
+## Real World Considerations
+- How would someone be able to call back for human escalation if all slots are booked?
+- 

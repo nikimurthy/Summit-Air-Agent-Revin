@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from config import BookingStatus, EscalationStatus, Priority, PropertyType
+from config import BookingStatus, County, EscalationStatus, Priority, PropertyType
 
 
 @dataclass
@@ -9,7 +9,7 @@ class CallerInformation:
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
-    county: Optional[str] = None
+    county: Optional[County] = None
     property_type: Optional[PropertyType] = None
     issue_description: Optional[str] = None
     priority: Optional[Priority] = None
@@ -36,7 +36,7 @@ class CallState:
                 "name": info.name,
                 "phone": info.phone,
                 "address": info.address,
-                "county": info.county,
+                "county": info.county.value if info.county else None,
                 "property_type": info.property_type.value if info.property_type else None,
                 "issue_description": info.issue_description,
                 "priority": info.priority.value if info.priority else None,

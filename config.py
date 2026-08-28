@@ -10,13 +10,18 @@ BUSINESS_DAYS = {
     0, 1, 2, 3, 4
 }
 
-LOCAL_BOOKING_WINDOW_DAYS = 14
+ROUTINE_BOOKING_WINDOW_DAYS = 14
+URGENT_BOOKING_WINDOW_DAYS = 7
+EMERGENCY_BOOKING_WINDOW_DAYS = 7
 
-COUNTIES = [
-    "County Alpha",
-    "County Bravo",
-    "County Charlie",
-]
+MAX_SCHEDULING_ATTEMPTS = 3
+
+class County(str, Enum):
+    ALPHA = "County Alpha"
+    BRAVO = "County Bravo"
+    CHARLIE = "County Charlie"
+
+COUNTIES = list(County)
 
 class PropertyType(str, Enum):
     RESIDENTIAL = "residential"
