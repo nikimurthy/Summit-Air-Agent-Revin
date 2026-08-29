@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify
 
-from config import County, PropertyType
+from config import County, Priority, PropertyType
 from tools import (
     CALL_STATES,
     get_missing_intake_fields,
     get_new_requestID,
     request_human_escalation,
     update_state_intake,
+    update_state_priority,
 )
 
 app = Flask(__name__)
@@ -84,6 +85,51 @@ def _handle_update_state_intake(arguments: dict) -> dict:
     return _intake_result(True, state.phase.value, not missing_fields, missing_fields)
 
 
+def _priority_result(
+    success: bool,
+    current_phase: str | None,
+    error_type: str | None = None,
+    message: str | None = None,
+) -> dict:
+    return {
+        "success": success,
+        "current_phase": current_phase,
+        "error_type": error_type,
+        "message": message,
+    }
+
+
+def _handle_update_state_priority(arguments: dict) -> dict:
+    request_id = arguments.get("requestID")
+    if request_id is None:
+        return _priority_result(False, None, "missing_request_id", "requestID is required.")
+
+    state = CALL_STATES.get(request_id)
+    if state is None:
+        return _priority_result(
+            False, None, "not_found", f"No service request found for requestID {request_id}."
+        )
+
+    priority_raw = arguments.get("priority")
+    if priority_raw is None:
+        return _priority_result(False, state.phase.value, "missing_field", "priority is required.")
+
+    try:
+        priority = Priority(priority_raw)
+    except ValueError:
+        return _priority_result(
+            False, state.phase.value, "invalid_value", "priority must be routine, urgent, or emergency."
+        )
+
+    state = update_state_priority(request_id, priority, issue_description=arguments.get("issue_description"))
+
+    print(f"[{request_id}] update_state_priority arguments={arguments}", flush=True)
+    print(f"[{request_id}] priority now: {state.service_request.priority.value}", flush=True)
+    print(f"[{request_id}] phase={state.phase.value}", flush=True)
+
+    return _priority_result(True, state.phase.value)
+
+
 def _handle_request_human_escalation(arguments: dict) -> dict:
     issue = arguments.get("issue")
     request_now = arguments.get("request_now")
@@ -117,6 +163,8 @@ def vapi_tool_calls():
             result = _handle_get_new_requestID()
         elif function_name == "request_human_escalation":
             result = _handle_request_human_escalation(arguments)
+        elif function_name == "update_state_priority":
+            result = _handle_update_state_priority(arguments)
         else:
             result = {"success": False, "error_type": "unsupported_tool", "message": f"unsupported tool: {function_name}"}
 

@@ -1,0 +1,21 @@
+{
+  "type": "function",
+  "function": {
+    "name": "update_state_priority",
+    "description": "Call this once you've determined the caller's priority level. Requires the requestID returned by get_new_requestID. Optionally include an updated issue_description if you've learned more detail since Intake.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
+        "priority": {
+          "type": "string",
+          "enum": ["routine", "urgent", "emergency"],
+          "description": "The assessed priority of this service request"
+        },
+        "issue_description": { "type": "string", "description": "Updated concise description of the HVAC issue, if more detail was learned" }
+      },
+      "required": ["requestID", "priority"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

@@ -101,6 +101,7 @@ Planned agent tools:
 - Display results on terminal
 
 ## Nice to Have:
+- point all conversation endings to summary phase, and implement state updates in every phase for escalation, bookings, etc. so that each phase does not need conversation ending instructions
 - lookup_appointment
 - Implement technician latitude/longitude to find closest one
 - Add distinction for human escalation when a human is back during normal hours (no availability found, unable to decipher maintenance issue, commerical problem; maybe add another priority option which is "call-back") and human escalation that alerts someone outisde business hours for emergency situations

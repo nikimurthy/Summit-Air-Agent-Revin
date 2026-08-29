@@ -10,6 +10,7 @@ from config import (
     APPOINTMENT_DURATION_MINUTES,
     BUFFER_MINUTES,
     County,
+    Priority,
     PropertyType,
     CallPhase,
 )
@@ -89,6 +90,28 @@ def update_state_intake(
 
     if state.phase == CallPhase.INTAKE and not get_missing_intake_fields(state):
         state.phase = CallPhase.PRIORITY_ASSESSMENT
+
+    return state
+
+
+#looks up an existing request by id; returns None (no implicit creation) if it doesn't exist
+def update_state_priority(
+    request_id: int,
+    priority: Priority,
+    issue_description: str | None = None,
+) -> Optional[CallState]:
+    state = CALL_STATES.get(request_id)
+    if state is None:
+        return None
+
+    request = state.service_request
+    request.priority = priority
+
+    if issue_description is not None:
+        request.issue_description = issue_description
+
+    if state.phase == CallPhase.PRIORITY_ASSESSMENT:
+        state.phase = CallPhase.CALLER_AVAILABILITY
 
     return state
 
