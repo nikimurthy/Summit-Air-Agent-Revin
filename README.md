@@ -101,6 +101,7 @@ Planned agent tools:
 - Display results on terminal
 
 ## Nice to Have:
+- lookup_appointment
 - Implement technician latitude/longitude to find closest one
 - Add distinction for human escalation when a human is back during normal hours (no availability found, unable to decipher maintenance issue, commerical problem; maybe add another priority option which is "call-back") and human escalation that alerts someone outisde business hours for emergency situations
 - Store emergency calls in a database rather than null escalate function
@@ -121,4 +122,34 @@ Planned agent tools:
 - Changed county from being stored as string to integer to minimize compare errors
 
 ## Real World Considerations
-- How would someone be able to call back for human escalation if all slots are booked?
+- How quickly should it enable human escalation if requested immediately?
+
+
+
+update_caller_information
+        ↓
+stores understood caller data
+
+check_availability
+        ↓
+reads CallState, executes scheduling policy
+
+reject_slot
+        ↓
+records rejected offer / moves scheduling state
+
+book_appointment
+        ↓
+reads current proposed slot + caller data
+
+lookup_appointment
+        ↓
+existing appointment request
+
+human_escalation
+        ↓
+uses current CallState
+
+finalize_call
+        ↓
+prints summary / cleans up

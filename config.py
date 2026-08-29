@@ -43,6 +43,13 @@ class EscalationStatus(str, Enum):
     IMMEDIATE_REQUEST = "immediate_request"
     CALLBACK_REQUEST = "callback_request"
 
+class CallPhase(str, Enum):
+    INTAKE = "intake"
+    PRIORITY_ASSESSMENT = "priority_assessment"
+    REQUEST_AVAILABILITY = "request_availability"
+    FIND_SLOT = "find_slot"
+    BOOK_APPOINTMENT = "booking_appointment"
+    SUMMARIZE = "summarize"
 
 
 

@@ -1,0 +1,26 @@
+{
+  "type": "function",
+  "function": {
+    "name": "update_caller_information",
+    "description": "Call this whenever the caller provides any new intake information. Only include fields the caller has actually stated in this turn — omit anything not yet known. Call it multiple times as more information comes in over the conversation, not just once at the end.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Caller's full name" },
+        "phone": { "type": "string", "description": "Callback phone number" },
+        "address": { "type": "string", "description": "Service address" },
+        "county": {
+          "type": "string",
+          "enum": ["County Alpha", "County Bravo", "County Charlie"],
+          "description": "Which of Summit Air's three service counties the address is in"
+        },
+        "property_type": {
+          "type": "string",
+          "enum": ["residential", "commercial"]
+        },
+        "issue_description": { "type": "string", "description": "What the caller said is wrong with their HVAC system" }
+      }
+    }
+  },
+  "server": { "url": "https://routers-defines-importantly-rocks.trycloudflare.com/vapi/tool-calls" }
+}

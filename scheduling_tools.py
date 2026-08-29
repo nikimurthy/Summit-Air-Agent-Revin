@@ -1,5 +1,4 @@
 import sqlite3
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -13,44 +12,13 @@ from config import (
     Priority,
 )
 
-
-@dataclass
-class AvailabilityWindow:
-    start: datetime
-    end: datetime
-
-
-@dataclass
-class AvailabilityRequest:
-    availability: list[AvailabilityWindow]
-    require_buffer: bool
-    excluded_slots: list[AvailabilityWindow] = field(default_factory=list)
-    county: Optional[County] = None
-
-
-@dataclass
-class AvailabilityResult:
-    available_slot: Optional[AvailabilityWindow] = None
-    technician_id: Optional[int] = None
-
-@dataclass
-class BookRequest:
-    technician_id: int
-    customer_name: str
-    customer_address: str
-    county: County
-    issue: str
-    priority: Priority
-    start_time: datetime
-    end_time: datetime
-    customer_phone: Optional[str] = None
-
-
-@dataclass
-class BookResult:
-    success: bool
-    appointment_id: Optional[int] = None
-
+from models import (
+    AvailabilityWindow, 
+    AvailabilityRequest, 
+    AvailabilityResult, 
+    BookRequest, 
+    BookResult
+)
 
 #returns list of eligible technician ids based on county; returns all if no county specified
 def _get_eligible_technicians(county: Optional[County]) -> list[int]:

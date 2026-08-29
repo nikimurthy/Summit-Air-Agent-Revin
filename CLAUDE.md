@@ -46,6 +46,7 @@ Do not change these decisions without my permission.
 - Do not implement functionality for potential future needs unless requested.
 - Do not make Git commits.
 - Do not push to GitHub.
+- With VAPI integration, ensure that prompts and tool-calling is done via API in local repo, rather than configured on VAPI UI dashboard
 
 ## Before Implementing
 
