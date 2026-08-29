@@ -1,0 +1,12 @@
+{
+  "type": "function",
+  "function": {
+    "name": "get_new_requestID",
+    "description": "Call this once, right when you confirm the caller has a new, serviceable HVAC request (not commercial, not an existing appointment). Returns a requestID that must be included on every subsequent update_state_intake call for this request.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

@@ -12,11 +12,13 @@ import os
 import urllib.request
 
 ASSISTANT_ID = "75bb9109-bb9a-460d-8fcd-3545a6484358"
-UPDATE_CALLER_INFORMATION_TOOL_ID = "056fe118-b451-4b1b-8c68-ddb721e3344d"  # from POST /tool
+UPDATE_STATE_INTAKE_TOOL_ID = "056fe118-b451-4b1b-8c68-ddb721e3344d"  # renamed via rename_update_caller_information_tool.py
 
-PROMPT_PATH = "vapi/prompts/phase1_intake_system_prompt.md"
+PROMPT_PATH = "vapi/prompts/phase1_intake_prompt.md"
 FIRST_MESSAGE_PATH = "vapi/prompts/phase1_first_message.txt"
 END_CALL_TOOL_ID_PATH = "vapi/tools/end_call_tool_id.txt"  # written by create_end_call_tool.py
+GET_NEW_REQUEST_ID_TOOL_ID_PATH = "vapi/tools/get_new_requestID_tool_id.txt"  # written by create_get_new_requestID_tool.py
+HUMAN_ESCALATION_TOOL_ID_PATH = "vapi/tools/request_human_escalation_tool_id.txt"  # written by create_request_human_escalation_tool.py
 PATCH_PATH = "vapi/assistant_patch.json"
 SNAPSHOT_PATH = "vapi/current_assistant_snapshot.json"
 
@@ -33,12 +35,24 @@ def main() -> None:
     prompt = open(PROMPT_PATH).read().strip()
     first_message = open(FIRST_MESSAGE_PATH).read().strip()
 
-    tool_ids = [UPDATE_CALLER_INFORMATION_TOOL_ID]
+    tool_ids = [UPDATE_STATE_INTAKE_TOOL_ID]
     if os.path.exists(END_CALL_TOOL_ID_PATH):
         tool_ids.append(open(END_CALL_TOOL_ID_PATH).read().strip())
     else:
         print(f"NOTE: {END_CALL_TOOL_ID_PATH} not found — publishing without the endCall tool. "
               "Run vapi/create_end_call_tool.py first if you want it included.")
+
+    if os.path.exists(GET_NEW_REQUEST_ID_TOOL_ID_PATH):
+        tool_ids.append(open(GET_NEW_REQUEST_ID_TOOL_ID_PATH).read().strip())
+    else:
+        print(f"NOTE: {GET_NEW_REQUEST_ID_TOOL_ID_PATH} not found — publishing without get_new_requestID. "
+              "Run vapi/create_get_new_requestID_tool.py first if you want it included.")
+
+    if os.path.exists(HUMAN_ESCALATION_TOOL_ID_PATH):
+        tool_ids.append(open(HUMAN_ESCALATION_TOOL_ID_PATH).read().strip())
+    else:
+        print(f"NOTE: {HUMAN_ESCALATION_TOOL_ID_PATH} not found — publishing without request_human_escalation. "
+              "Run vapi/create_request_human_escalation_tool.py first if you want it included.")
 
     patch = {
         "firstMessage": first_message,

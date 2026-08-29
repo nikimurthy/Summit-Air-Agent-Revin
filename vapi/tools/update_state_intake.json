@@ -1,11 +1,12 @@
 {
   "type": "function",
   "function": {
-    "name": "update_caller_information",
-    "description": "Call this whenever the caller provides any new intake information. Only include fields the caller has actually stated in this turn — omit anything not yet known. Call it multiple times as more information comes in over the conversation, not just once at the end.",
+    "name": "update_state_intake",
+    "description": "Call this whenever the caller provides any new intake information. Requires the requestID returned by get_new_requestID. Only include fields the caller has actually stated in this turn — omit anything not yet known. Call it multiple times as more information comes in over the conversation, not just once at the end.",
     "parameters": {
       "type": "object",
       "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
         "name": { "type": "string", "description": "Caller's full name" },
         "phone": { "type": "string", "description": "Callback phone number" },
         "address": { "type": "string", "description": "Service address" },
@@ -19,8 +20,9 @@
           "enum": ["residential", "commercial"]
         },
         "issue_description": { "type": "string", "description": "What the caller said is wrong with their HVAC system" }
-      }
+      },
+      "required": ["requestID"]
     }
   },
-  "server": { "url": "https://routers-defines-importantly-rocks.trycloudflare.com/vapi/tool-calls" }
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
 }

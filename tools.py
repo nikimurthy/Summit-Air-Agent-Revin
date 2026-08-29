@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -9,16 +10,88 @@ from config import (
     APPOINTMENT_DURATION_MINUTES,
     BUFFER_MINUTES,
     County,
-    Priority,
+    PropertyType,
+    CallPhase,
+)
+from models import (
+    AvailabilityWindow,
+    AvailabilityRequest,
+    AvailabilityResult,
+    BookRequest,
+    BookResult,
+    CallState,
 )
 
-from models import (
-    AvailabilityWindow, 
-    AvailabilityRequest, 
-    AvailabilityResult, 
-    BookRequest, 
-    BookResult
-)
+REQUIRED_INTAKE_FIELDS = [
+    "name",
+    "phone",
+    "address",
+    "county",
+    "property_type",
+    "issue_description",
+]
+
+CALL_STATES: dict[int, CallState] = {}
+
+_next_request_id = 1
+_request_id_lock = threading.Lock()
+
+
+#creates a blank CallState under a freshly generated, thread-safe incrementing id; returns that id
+def get_new_requestID() -> int:
+    global _next_request_id
+    with _request_id_lock:
+        request_id = _next_request_id
+        _next_request_id += 1
+        CALL_STATES[request_id] = CallState(request_id=request_id)
+    return request_id
+
+
+#returns the required Intake fields that are still None on this request's ServiceRequest
+def get_missing_intake_fields(state: CallState) -> list[str]:
+    request = state.service_request
+    return [field for field in REQUIRED_INTAKE_FIELDS if getattr(request, field) is None]
+
+
+#looks up an existing request by id; returns None (no implicit creation) if it doesn't exist
+def update_state_intake(
+    request_id: int,
+    name: str | None = None,
+    phone: str | None = None,
+    address: str | None = None,
+    county: County | None = None,
+    property_type: PropertyType | None = None,
+    issue_description: str | None = None,
+) -> Optional[CallState]:
+    state = CALL_STATES.get(request_id)
+    if state is None:
+        return None
+
+    request = state.service_request
+
+    if name is not None:
+        request.name = name
+
+    if phone is not None:
+        request.phone = phone
+
+    if address is not None:
+        request.address = address
+
+    if county is not None:
+        request.county = county
+
+    if property_type is not None:
+        request.property_type = property_type
+
+    if issue_description is not None:
+        request.issue_description = issue_description
+
+    if state.phase == CallPhase.INTAKE and not get_missing_intake_fields(state):
+        state.phase = CallPhase.PRIORITY_ASSESSMENT
+
+    return state
+
 
 #returns list of eligible technician ids based on county; returns all if no county specified
 def _get_eligible_technicians(county: Optional[County]) -> list[int]:
@@ -148,7 +221,6 @@ def check_availability(availability_request: AvailabilityRequest) -> Availabilit
     return AvailabilityResult()
 
 
-
 #attempts to insert the appointment; success=False if (technician_id, start_time) is already booked
 def book_appointment(book_request: BookRequest) -> BookResult:
     connection = sqlite3.connect("summit_air.db")
@@ -181,9 +253,9 @@ def book_appointment(book_request: BookRequest) -> BookResult:
 
 
 #mocked human escalation; request_now=True for an immediate alert, False for a business-hours callback
-def request_human_escalation(issue: str, request_now: bool) -> bool:
+def request_human_escalation(issue: str, request_now: bool, phone_number: str) -> bool:
     if request_now:
-        print(f"Human requested now for {issue} issue.")
+        print(f"Human requested now for {issue} issue. Callback at {phone_number}.")
     else:
-        print(f"Human callback requested during business hours for {issue} issue.")
+        print(f"Human callback requested during business hours for {issue} issue. Callback at {phone_number}")
     return True

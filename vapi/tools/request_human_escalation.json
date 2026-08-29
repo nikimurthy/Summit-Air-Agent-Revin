@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "request_human_escalation",
+    "description": "Call this to alert a human team member. Use request_now=true for an emergency (e.g. gas smell) requiring immediate attention. Use request_now=false for a business-hours callback (e.g. caller explicitly asks for a human, or the request cannot be resolved through this conversation). Always include a callback phone number.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "issue": { "type": "string", "description": "Brief description of the issue prompting escalation" },
+        "request_now": { "type": "boolean", "description": "true for an immediate/emergency alert, false for a business-hours callback" },
+        "phone_number": { "type": "string", "description": "Callback number for the human team member to reach the caller" }
+      },
+      "required": ["issue", "request_now", "phone_number"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

@@ -123,7 +123,8 @@ Planned agent tools:
 
 ## Real World Considerations
 - How quickly should it enable human escalation if requested immediately?
-
+- Storing service requests in the database for future reference or analytics
+- Configure each phase to be performed by a different agent and pass state information rather than sharing it
 
 
 update_caller_information
