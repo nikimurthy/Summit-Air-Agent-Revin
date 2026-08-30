@@ -17,6 +17,30 @@ python3 agent.py                      # starts the Flask webhook server on port 
 
 The local server only receives tool-call webhooks from Vapi — it isn't reachable by Vapi unless it's tunneled (e.g. ngrok) or deployed somewhere public (e.g. Render, as above).
 
+### Switching between local and Render
+
+Which backend actually handles a call is decided entirely by whatever URL is currently set on each tool's `server.url` field on Vapi — it has nothing to do with which process is running. Render keeps running independently either way (it doesn't stop or pause just because you start `agent.py` locally), so switching to local for testing and back to Render afterward is just a matter of re-pointing the tools, not starting/stopping either deployment.
+
+**Switch to local (ngrok):**
+1. `python3 agent.py` — start the local Flask server (port 5001)
+2. `ngrok http 5001 --url=https://supplier-douche-recognize.ngrok-free.dev` — reattach to the reserved ngrok domain (in a separate terminal)
+3. In each `vapi/tools/*.json`, change `server.url` from the Render URL to `https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls`
+4. Push each changed tool to Vapi:
+   ```
+   for label in get_new_requestID update_state_intake request_human_escalation get_state \
+                update_state_priority update_raw_availability update_availability_windows \
+                check_availability book_appointment find_technician get_current_timestamp \
+                save_service_request get_scheduling_config; do
+     python3 vapi/update_tool.py "$label"
+   done
+   ```
+5. Test — your local terminal and `summit_air.db` will now reflect the call.
+
+**Switch back to Render:**
+1. In each `vapi/tools/*.json`, change `server.url` back to `https://summit-air-agent-revin.onrender.com/vapi/tool-calls`
+2. Re-run the same `update_tool.py` loop from step 4 above
+3. You can stop the local `agent.py`/ngrok processes — Render is already running and will pick calls back up immediately
+
 ### Push config changes to Vapi
 
 All prompts and tool definitions are config-as-code under `vapi/` — never edited in the Vapi dashboard. Requires a Vapi API key in `~/.vapi-cli.yaml`:
