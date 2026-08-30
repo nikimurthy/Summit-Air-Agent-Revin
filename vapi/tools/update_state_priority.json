@@ -17,5 +17,5 @@
       "required": ["requestID", "priority"]
     }
   },
-  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+  "server": { "url": "https://summit-air-agent-revin.onrender.com/vapi/tool-calls" }
 }
