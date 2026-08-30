@@ -20,7 +20,7 @@ class AvailabilityWindow:
 class AvailabilityRequest:
     availability: list[AvailabilityWindow]
     require_buffer: bool
-    county: Optional[County] = None  # hard filter: only these technicians are eligible at all
+    required_county: Optional[County] = None  # hard filter: only these technicians are eligible at all
     preferred_county: Optional[County] = None  # soft tiebreak: prefer this county among ties at the same slot
 
 

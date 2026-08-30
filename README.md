@@ -115,44 +115,12 @@ Planned agent tools:
 
 ## Cases to test for
 - Calling about multiple issues at once
-- Duplicate call about same issue
 - Caller unsure if commericial or residential
 - Providing schedule before asked by agent
 - Change appointment slot time to something other than 30 min
 
-## Changes made along the way
-- Changed county from being stored as string to integer to minimize compare errors
-
-## Real World Considerations
+## Real World Considerations / Future Updates
 - How quickly should it enable human escalation if requested immediately?
-- Storing service requests in the database for future reference or analytics
 - Configure each phase to be performed by a different agent and pass state information rather than sharing it
-
-
-update_caller_information
-        ↓
-stores understood caller data
-
-check_availability
-        ↓
-reads CallState, executes scheduling policy
-
-reject_slot
-        ↓
-records rejected offer / moves scheduling state
-
-book_appointment
-        ↓
-reads current proposed slot + caller data
-
-lookup_appointment
-        ↓
-existing appointment request
-
-human_escalation
-        ↓
-uses current CallState
-
-finalize_call
-        ↓
-prints summary / cleans up
+- Duplicate call detection via prelimiary appointment checking for past/future appointments with same caller
+- 

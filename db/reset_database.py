@@ -49,9 +49,10 @@ TECHNICIANS = [
 
 connection = sqlite3.connect("summit_air.db")
 
-# Delete all appointments and technicians
+# Delete all appointments, technicians, and service requests
 connection.execute("DELETE FROM appointments")
 connection.execute("DELETE FROM technicians")
+connection.execute("DELETE FROM service_requests")
 
 connection.executemany(
     "INSERT INTO technicians (id, name, county) VALUES (?, ?, ?)",
@@ -72,13 +73,15 @@ charlie = connection.execute(
     "SELECT COUNT(*) FROM technicians WHERE county = ?", (County.CHARLIE,)
 ).fetchone()[0]
 appointments = connection.execute("SELECT COUNT(*) FROM appointments").fetchone()[0]
+service_requests = connection.execute("SELECT COUNT(*) FROM service_requests").fetchone()[0]
 
 assert total == 40, f"expected 40 technicians, found {total}"
 assert alpha == 14, f"expected 14 technicians in County Alpha, found {alpha}"
 assert bravo == 13, f"expected 13 technicians in County Bravo, found {bravo}"
 assert charlie == 13, f"expected 13 technicians in County Charlie, found {charlie}"
 assert appointments == 0, f"expected 0 appointments after reset, found {appointments}"
+assert service_requests == 0, f"expected 0 service requests after reset, found {service_requests}"
 
-print("Reset complete: 40 technicians (14 Alpha, 13 Bravo, 13 Charlie), 0 appointments.")
+print("Reset complete: 40 technicians (14 Alpha, 13 Bravo, 13 Charlie), 0 appointments, 0 service requests.")
 
 connection.close()

@@ -10,3 +10,4 @@ book_appointment id: 042ead5f-03b8-4db7-99f5-fce69d58556b
 find_technician id: b6be1990-5303-47b2-81dd-f88c3cf3063f
 get_current_timestamp id: 657c831f-3501-4989-90fa-29c885c5c639
 save_service_request id: 587a1147-d311-4136-93e9-512fbf62dded
+get_scheduling_config id: efce9678-d7b6-4e9e-9415-9cebe4c256bf

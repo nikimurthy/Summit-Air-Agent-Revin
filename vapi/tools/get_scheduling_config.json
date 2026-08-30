@@ -1,0 +1,12 @@
+{
+  "type": "function",
+  "function": {
+    "name": "get_scheduling_config",
+    "description": "Returns the business's scheduling rules: appointment duration, buffer time between routine appointments, business hours, business days, how many days out routine/urgent requests can be booked, and the maximum number of failed booking attempts (slot taken) before giving up and escalating. Call this before reasoning about scheduling so you don't guess at these values.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

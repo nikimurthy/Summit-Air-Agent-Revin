@@ -10,8 +10,12 @@ from config import (
     BUFFER_MINUTES,
     APPOINTMENT_DURATION_MINUTES,
     COUNTIES,
+    BookingStatus,
+    CallPhase,
     County,
+    EscalationStatus,
     Priority,
+    PropertyType,
 )
 
 # Static, hand-verified set of 67 appointments across the 40 technicians.
@@ -198,5 +202,49 @@ print(f"Total appointments: {len(rows)}")
 print(f"Buffered same-day pairs: {buffered_pairs}")
 print(f"Back-to-back (no buffer) same-day pairs: {zero_gap_pairs}")
 print("All seed data assertions passed.")
+
+# --- sample service_requests: demonstrate that a request can be saved at any
+# stage of completeness, not just once fully populated/serviceable ---
+# Columns: request_id, name, phone, address, county, property_type, issue_description,
+#          priority, availability_raw, appointment_id, booking_status, escalation_status, final_phase
+SERVICE_REQUESTS = [
+    # 0: fully populated and booked (linked to appointment 1)
+    (0, 'Robert Harris', '555-100-1000', '100 Maple Ave, Alphaton', County.ALPHA,
+     PropertyType.RESIDENTIAL, 'AC not cooling', Priority.ROUTINE, 'weekday mornings',
+     1, BookingStatus.BOOKED.value, EscalationStatus.NOT_REQUIRED.value, CallPhase.SUMMARIZE.value),
+    # 1: partial — intake and priority done, but escalated before scheduling completed
+    (1, 'Michael Torres', '555-200-2000', '200 Fairview Rd, Bravoville', County.BRAVO,
+     PropertyType.COMMERCIAL, 'Heat pump not heating, tenants without heat', Priority.EMERGENCY, None,
+     None, BookingStatus.NOT_BOOKED.value, EscalationStatus.IMMEDIATE_REQUEST.value, CallPhase.CALLER_AVAILABILITY.value),
+    # 2: bare — request created, caller never provided any information
+    (2, None, None, None, None,
+     None, None, None, None,
+     None, BookingStatus.NOT_BOOKED.value, EscalationStatus.NOT_REQUIRED.value, CallPhase.INTAKE.value),
+]
+
+connection.executemany(
+    """
+    INSERT INTO service_requests (
+        request_id, name, phone, address, county, property_type, issue_description,
+        priority, availability_raw, appointment_id, booking_status, escalation_status, final_phase
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+    SERVICE_REQUESTS,
+)
+connection.commit()
+
+service_request_rows = connection.execute(
+    "SELECT request_id, name, booking_status, escalation_status, final_phase FROM service_requests ORDER BY request_id"
+).fetchall()
+assert [row[0] for row in service_request_rows] == [0, 1, 2], (
+    "expected service_requests with ids 0, 1, 2"
+)
+assert service_request_rows[0][2] == BookingStatus.BOOKED.value, "request 0 should be booked"
+assert service_request_rows[1][3] == EscalationStatus.IMMEDIATE_REQUEST.value, "request 1 should be escalated"
+assert service_request_rows[2][1] is None and service_request_rows[2][4] == CallPhase.INTAKE.value, (
+    "request 2 should be a bare, unpopulated request still in intake"
+)
+
+print(f"Sample service requests: {len(service_request_rows)} (ids 0, 1, 2)")
 
 connection.close()

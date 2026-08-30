@@ -89,6 +89,7 @@ def main() -> None:
         "book_appointment",
         "find_technician",
         "get_current_timestamp",
+        "get_scheduling_config",
         "save_service_request",
     ]
 

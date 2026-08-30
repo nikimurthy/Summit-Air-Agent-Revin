@@ -9,12 +9,16 @@ from config import (
     BUSINESS_DAYS,
     APPOINTMENT_DURATION_MINUTES,
     BUFFER_MINUTES,
+    ROUTINE_BOOKING_WINDOW_DAYS,
+    URGENT_BOOKING_WINDOW_DAYS,
+    MAX_BOOKING_FAILURES,
     BookingStatus,
     County,
     EscalationStatus,
     Priority,
     PropertyType,
     CallPhase,
+    REQUIRED_INTAKE_FIELDS,
 )
 from models import (
     Appointment,
@@ -26,15 +30,6 @@ from models import (
     CallState,
     Technician,
 )
-
-REQUIRED_INTAKE_FIELDS = [
-    "name",
-    "phone",
-    "address",
-    "county",
-    "property_type",
-    "issue_description",
-]
 
 CALL_STATES: dict[int, CallState] = {}
 
@@ -161,6 +156,23 @@ def get_current_timestamp() -> datetime:
     return datetime.now()
 
 
+_WEEKDAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+
+#returns static scheduling business rules, so the LLM doesn't have to guess/hardcode them
+def get_scheduling_config() -> dict:
+    return {
+        "appointment_duration_minutes": APPOINTMENT_DURATION_MINUTES,
+        "buffer_minutes": BUFFER_MINUTES,
+        "business_start_hour": BUSINESS_START_HOUR,
+        "business_end_hour": BUSINESS_END_HOUR,
+        "business_days": [_WEEKDAY_NAMES[day] for day in sorted(BUSINESS_DAYS)],
+        "routine_booking_window_days": ROUTINE_BOOKING_WINDOW_DAYS,
+        "urgent_booking_window_days": URGENT_BOOKING_WINDOW_DAYS,
+        "maximum_booking_failures": MAX_BOOKING_FAILURES,
+    }
+
+
 #returns list of eligible technician ids based on county; returns all if no county specified
 def _get_eligible_technicians(county: Optional[County]) -> list[int]:
     connection = sqlite3.connect("summit_air.db")
@@ -250,7 +262,7 @@ def _technician_is_free(
 
 
 def check_availability(availability_request: AvailabilityRequest) -> AvailabilityResult:
-    eligible_technicians = _get_eligible_technicians(availability_request.county)
+    eligible_technicians = _get_eligible_technicians(availability_request.required_county)
     appointments_by_technician = _get_technician_appointments(eligible_technicians)
     require_buffer = availability_request.require_buffer
 
@@ -305,9 +317,12 @@ def check_availability(availability_request: AvailabilityRequest) -> Availabilit
 #caller (Vapi) only ever needs to pass requestID:
 #  ROUTINE -> restricted to the caller's own county, buffer required
 #  URGENT/EMERGENCY -> any technician, no buffer (county still preferred as a same-slot tiebreak)
-def check_availability_for_request(request_id: int) -> Optional[AvailabilityResult]:
+def check_availability_wrapper(request_id: int) -> Optional[AvailabilityResult]:
+    print(f"[{request_id}] check_availability_wrapper called", flush=True)
+
     state = CALL_STATES.get(request_id)
     if state is None:
+        print(f"[{request_id}] check_availability_wrapper: no such request", flush=True)
         return None
 
     request = state.service_request
@@ -316,10 +331,19 @@ def check_availability_for_request(request_id: int) -> Optional[AvailabilityResu
     availability_request = AvailabilityRequest(
         availability=request.availability_windows,
         require_buffer=is_routine,
-        county=request.county if is_routine else None,
+        required_county=request.county if is_routine else None,
         preferred_county=request.county,
     )
-    return check_availability(availability_request)
+    print(
+        f"[{request_id}] check_availability_wrapper: priority={request.priority}, "
+        f"required_county={availability_request.required_county}, preferred_county={availability_request.preferred_county}, "
+        f"windows={request.availability_windows}",
+        flush=True,
+    )
+
+    result = check_availability(availability_request)
+    print(f"[{request_id}] check_availability_wrapper result: {result}", flush=True)
+    return result
 
 
 #returns the Technician for technician_id, or None if no such technician exists
@@ -402,14 +426,17 @@ def book_appointment(book_request: BookRequest) -> BookResult:
 
 #looks up an existing request by id; returns None (no implicit creation) if it doesn't exist.
 #builds the BookRequest entirely from stored state plus the one slot being booked (technician_id
-#+ start/end, as returned by check_availability_for_request). On success, marks the request
+#+ start/end, as returned by check_availability_wrapper). On success, marks the request
 #booked and advances to SUMMARIZE. On failure (slot taken since it was offered), state is left
 #unchanged — the caller must recheck availability and offer a new slot, not retry blindly.
-def book_appointment_for_request(
+def book_appointment_wrapper(
     request_id: int, technician_id: int, start_time: datetime, end_time: datetime
 ) -> Optional[BookResult]:
+    print(f"[{request_id}] book_appointment_wrapper called: technician_id={technician_id}, start={start_time}, end={end_time}", flush=True)
+
     state = CALL_STATES.get(request_id)
     if state is None:
+        print(f"[{request_id}] book_appointment_wrapper: no such request", flush=True)
         return None
 
     request = state.service_request
@@ -426,11 +453,15 @@ def book_appointment_for_request(
         request_id=request_id,
     )
     result = book_appointment(book_request)
+    print(f"[{request_id}] book_appointment_wrapper: book_appointment result={result}", flush=True)
 
     if result.success:
         state.service_outcome.appointment_id = result.appointment_id
         state.service_outcome.booking_status = BookingStatus.BOOKED
         state.phase = CallPhase.SUMMARIZE
+        print(f"[{request_id}] book_appointment_wrapper: booked, phase now {state.phase.value}", flush=True)
+    else:
+        print(f"[{request_id}] book_appointment_wrapper: slot unavailable, state unchanged (phase={state.phase.value})", flush=True)
 
     return result
 

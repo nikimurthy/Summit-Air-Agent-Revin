@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from flask import Flask, request, jsonify
@@ -6,12 +7,13 @@ from config import County, Priority, PropertyType
 from models import AvailabilityWindow
 from tools import (
     CALL_STATES,
-    book_appointment_for_request,
-    check_availability_for_request,
+    book_appointment_wrapper,
+    check_availability_wrapper,
     find_technician,
     get_current_timestamp,
     get_missing_intake_fields,
     get_new_requestID,
+    get_scheduling_config,
     get_state,
     request_human_escalation,
     save_service_request,
@@ -207,7 +209,7 @@ def _handle_check_availability(arguments: dict) -> dict:
     if request_id is None:
         return {"success": False, "found": False, "error_type": "missing_request_id", "message": "requestID is required."}
 
-    result = check_availability_for_request(request_id)
+    result = check_availability_wrapper(request_id)
     if result is None:
         return {
             "success": False,
@@ -263,7 +265,7 @@ def _handle_book_appointment(arguments: dict) -> dict:
             "message": "start and end must be valid ISO datetimes.",
         }
 
-    result = book_appointment_for_request(request_id, technician_id, start_time, end_time)
+    result = book_appointment_wrapper(request_id, technician_id, start_time, end_time)
     if result is None:
         return {
             "success": False,
@@ -313,6 +315,11 @@ def _handle_find_technician(arguments: dict) -> dict:
         "error_type": None,
         "message": None,
     }
+
+
+def _handle_get_scheduling_config() -> dict:
+    config = get_scheduling_config()
+    return {"success": True, **config, "error_type": None, "message": None}
 
 
 def _handle_get_current_timestamp() -> dict:
@@ -423,6 +430,7 @@ _HANDLERS = {
     "book_appointment": lambda args: _handle_book_appointment(args),
     "find_technician": lambda args: _handle_find_technician(args),
     "get_current_timestamp": lambda args: _handle_get_current_timestamp(),
+    "get_scheduling_config": lambda args: _handle_get_scheduling_config(),
     "save_service_request": lambda args: _handle_save_service_request(args),
 }
 
@@ -450,4 +458,8 @@ def vapi_tool_calls():
 
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)  # 5000 conflicts with macOS Control Center (AirPlay Receiver)
+    # 5000 conflicts with macOS Control Center (AirPlay Receiver) locally.
+    # Render assigns its own port via $PORT and requires binding to 0.0.0.0.
+    # Render sets RENDER=true automatically, so debug (the reloader) only runs locally.
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=port, debug=not os.environ.get("RENDER"))

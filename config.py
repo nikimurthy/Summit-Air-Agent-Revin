@@ -12,9 +12,17 @@ BUSINESS_DAYS = {
 
 ROUTINE_BOOKING_WINDOW_DAYS = 14
 URGENT_BOOKING_WINDOW_DAYS = 7
-EMERGENCY_BOOKING_WINDOW_DAYS = 7
 
-MAX_SCHEDULING_ATTEMPTS = 3
+MAX_BOOKING_FAILURES = 3
+
+REQUIRED_INTAKE_FIELDS = [
+    "name",
+    "phone",
+    "address",
+    "county",
+    "property_type",
+    "issue_description",
+]
 
 class County(str, Enum):
     ALPHA = "County Alpha"
