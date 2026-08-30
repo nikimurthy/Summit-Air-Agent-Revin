@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "function": {
+    "name": "save_service_request",
+    "description": "Persists this service request's current information to the database. Call this once the request reaches a natural conclusion (booked, escalated, or the caller is done).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" }
+      },
+      "required": ["requestID"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

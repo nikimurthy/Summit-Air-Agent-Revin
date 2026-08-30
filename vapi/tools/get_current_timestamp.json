@@ -1,0 +1,12 @@
+{
+  "type": "function",
+  "function": {
+    "name": "get_current_timestamp",
+    "description": "Returns the real current date, time, and day of week. Always call this before reasoning about relative dates the caller gives (e.g. 'tomorrow', 'next Tuesday', 'Thursday morning') — you do not otherwise know what today's actual date is, and guessing will produce wrong dates.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

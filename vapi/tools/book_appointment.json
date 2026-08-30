@@ -1,0 +1,18 @@
+{
+  "type": "function",
+  "function": {
+    "name": "book_appointment",
+    "description": "Attempts to book the exact slot the caller just confirmed (technician_id, start, end — from check_availability's result). If this fails, the slot was taken by someone else since it was offered: apologize, call check_availability again, and offer the new slot. Do not retry booking the same slot.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
+        "technician_id": { "type": "integer", "description": "From check_availability's result" },
+        "start": { "type": "string", "description": "ISO 8601 datetime, from check_availability's result" },
+        "end": { "type": "string", "description": "ISO 8601 datetime, from check_availability's result" }
+      },
+      "required": ["requestID", "technician_id", "start", "end"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

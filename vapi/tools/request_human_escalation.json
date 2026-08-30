@@ -6,11 +6,12 @@
     "parameters": {
       "type": "object",
       "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
         "issue": { "type": "string", "description": "Brief description of the issue prompting escalation" },
         "request_now": { "type": "boolean", "description": "true for an immediate/emergency alert, false for a business-hours callback" },
         "phone_number": { "type": "string", "description": "Callback number for the human team member to reach the caller" }
       },
-      "required": ["issue", "request_now", "phone_number"]
+      "required": ["requestID", "issue", "request_now", "phone_number"]
     }
   },
   "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }

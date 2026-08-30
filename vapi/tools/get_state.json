@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "function": {
+    "name": "get_state",
+    "description": "Returns everything currently known about a service request (all intake fields, priority, availability, booking/escalation status), given its requestID. Unset fields come back as empty strings, never missing.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" }
+      },
+      "required": ["requestID"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

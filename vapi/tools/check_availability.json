@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "function": {
+    "name": "check_availability",
+    "description": "Finds the earliest available appointment slot for this service request, using its saved priority, county, and availability windows. Returns found=false if nothing matches. Only offer a slot to the caller after this returns found=true.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" }
+      },
+      "required": ["requestID"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

@@ -20,8 +20,8 @@ class AvailabilityWindow:
 class AvailabilityRequest:
     availability: list[AvailabilityWindow]
     require_buffer: bool
-    excluded_slots: list[AvailabilityWindow] = field(default_factory=list)
-    county: Optional[County] = None
+    county: Optional[County] = None  # hard filter: only these technicians are eligible at all
+    preferred_county: Optional[County] = None  # soft tiebreak: prefer this county among ties at the same slot
 
 
 @dataclass
@@ -40,12 +40,34 @@ class BookRequest:
     start_time: datetime
     end_time: datetime
     customer_phone: Optional[str] = None
+    request_id: Optional[int] = None
 
 
 @dataclass
 class BookResult:
     success: bool
     appointment_id: Optional[int] = None
+
+
+@dataclass
+class Appointment:
+    id: int
+    technician_id: int
+    customer_name: str
+    customer_address: str
+    county: County
+    issue: str
+    priority: Priority
+    start_time: datetime
+    end_time: datetime
+    customer_phone: Optional[str] = None
+
+
+@dataclass
+class Technician:
+    id: int
+    name: str
+    county: County
 
 
 @dataclass
@@ -61,8 +83,10 @@ class ServiceRequest:
     # phase 2: priority assessment
     priority: Optional[Priority] = None
 
-    # phase 3: caller availability
+    # phase 3: scheduling
     availability_raw: Optional[str] = None
+    availability_windows: list[AvailabilityWindow] = field(default_factory=list)
+
 
 
 @dataclass
@@ -78,8 +102,6 @@ class CallState:
     service_request: ServiceRequest = field(default_factory=ServiceRequest)
     service_outcome: ServiceOutcome = field(default_factory=ServiceOutcome)
     phase: CallPhase = CallPhase.INTAKE
-    availability_attempts: int = 0
-    availability_windows: list[AvailabilityWindow] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         request = self.service_request

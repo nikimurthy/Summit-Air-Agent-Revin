@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "function": {
+    "name": "find_technician",
+    "description": "Returns a technician's name and county given their id. Use this when confirming a booking to the caller (e.g. 'I have you booked with Charlie Kramer at 4pm Thursday') or if the caller asks who their technician is.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "technician_id": { "type": "integer", "description": "The technician's id" }
+      },
+      "required": ["technician_id"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "function",
+  "function": {
+    "name": "update_raw_availability",
+    "description": "Appends a short note of what the caller just said about their availability to the running log for this request (e.g. 'Tuesday afternoon'). Does not replace prior notes — call this every time the caller says something new about availability, including corrections or rejections of an offered slot.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
+        "raw_text": { "type": "string", "description": "What the caller just said about their availability" }
+      },
+      "required": ["requestID", "raw_text"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

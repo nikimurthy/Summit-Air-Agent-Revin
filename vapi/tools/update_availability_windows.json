@@ -1,0 +1,27 @@
+{
+  "type": "function",
+  "function": {
+    "name": "update_availability_windows",
+    "description": "Saves the caller's complete current availability as structured time windows, replacing any previously saved windows entirely. Recompute the FULL current set every time you call this — including after the caller rejects an offered slot — not just the newly mentioned part. Call get_current_timestamp first if you need to resolve a relative date like 'tomorrow' or 'next Tuesday'.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "requestID": { "type": "integer", "description": "The id returned by get_new_requestID for this service request" },
+        "availability_windows": {
+          "type": "array",
+          "description": "The caller's complete current set of availability windows",
+          "items": {
+            "type": "object",
+            "properties": {
+              "start": { "type": "string", "description": "ISO 8601 datetime, e.g. 2026-09-01T13:00:00" },
+              "end": { "type": "string", "description": "ISO 8601 datetime, e.g. 2026-09-01T17:00:00" }
+            },
+            "required": ["start", "end"]
+          }
+        }
+      },
+      "required": ["requestID", "availability_windows"]
+    }
+  },
+  "server": { "url": "https://supplier-douche-recognize.ngrok-free.dev/vapi/tool-calls" }
+}

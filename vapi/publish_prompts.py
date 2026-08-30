@@ -1,4 +1,4 @@
-"""Pushes the combined Phase 1-6 prompts + first message live to the Vapi assistant.
+"""Pushes the combined global-behavior + phase 1-4 prompts + first message live to the Vapi assistant.
 
 Run this every time any phase prompt file is edited:
     python3 vapi/publish_prompts.py
@@ -21,19 +21,15 @@ ASSISTANT_ID = "75bb9109-bb9a-460d-8fcd-3545a6484358"
 UPDATE_STATE_INTAKE_TOOL_ID = "056fe118-b451-4b1b-8c68-ddb721e3344d"  # renamed via rename_update_caller_information_tool.py
 
 PHASE_PROMPT_PATHS = [
+    "vapi/prompts/global_behavior_prompt.md",
     "vapi/prompts/phase1_intake_prompt.md",
     "vapi/prompts/phase2_priority_assessment_prompt.md",
-    "vapi/prompts/phase3_caller_availability_prompt.md",
-    "vapi/prompts/phase4_find_slot_prompt.md",
-    "vapi/prompts/phase5_book_appointment_prompt.md",
-    "vapi/prompts/phase6_summarize_prompt.md",
+    "vapi/prompts/phase3_scheduling_prompt.md",
+    "vapi/prompts/phase4_summarize_prompt.md",
 ]
 FIRST_MESSAGE_PATH = "vapi/prompts/first_message.txt"
 
-END_CALL_TOOL_ID_PATH = "vapi/tools/end_call_tool_id.txt"  # written by create_end_call_tool.py
-GET_NEW_REQUEST_ID_TOOL_ID_PATH = "vapi/tools/get_new_requestID_tool_id.txt"  # written by create_get_new_requestID_tool.py
-HUMAN_ESCALATION_TOOL_ID_PATH = "vapi/tools/request_human_escalation_tool_id.txt"  # written by create_request_human_escalation_tool.py
-UPDATE_STATE_PRIORITY_TOOL_ID_PATH = "vapi/tools/update_state_priority_tool_id.txt"  # not yet created
+TOOL_IDS_PATH = "vapi/tools/tool_ids.txt"  # lines of "<label> id: <uuid>"
 
 PATCH_PATH = "vapi/assistant_patch.json"
 SNAPSHOT_PATH = "vapi/current_assistant_snapshot.json"
@@ -58,11 +54,22 @@ def _build_combined_prompt() -> str:
     return "\n\n---\n\n".join(sections)
 
 
-def _optional_tool_id(path: str, tool_label: str) -> list[str]:
-    if os.path.exists(path):
-        return [open(path).read().strip()]
-    print(f"NOTE: {path} not found — publishing without {tool_label}. "
-          f"Create that tool first if you want it included.")
+def _load_tool_ids() -> dict[str, str]:
+    tool_ids = {}
+    if not os.path.exists(TOOL_IDS_PATH):
+        return tool_ids
+    for line in open(TOOL_IDS_PATH):
+        label, sep, tool_id = line.strip().partition(" id: ")
+        if sep:
+            tool_ids[label.strip()] = tool_id.strip()
+    return tool_ids
+
+
+def _optional_tool_id(loaded_tool_ids: dict[str, str], label: str) -> list[str]:
+    if label in loaded_tool_ids:
+        return [loaded_tool_ids[label]]
+    print(f"NOTE: no '{label}' entry in {TOOL_IDS_PATH} — publishing without it. "
+          f"Create that tool and add its id there if you want it included.")
     return []
 
 
@@ -70,11 +77,25 @@ def main() -> None:
     prompt = _build_combined_prompt()
     first_message = open(FIRST_MESSAGE_PATH).read().strip()
 
+    optional_tool_labels = [
+        "end_call",
+        "get_new_requestID",
+        "request_human_escalation",
+        "update_state_priority",
+        "get_state",
+        "update_raw_availability",
+        "update_availability_windows",
+        "check_availability",
+        "book_appointment",
+        "find_technician",
+        "get_current_timestamp",
+        "save_service_request",
+    ]
+
+    loaded_tool_ids = _load_tool_ids()
     tool_ids = [UPDATE_STATE_INTAKE_TOOL_ID]
-    tool_ids += _optional_tool_id(END_CALL_TOOL_ID_PATH, "endCall")
-    tool_ids += _optional_tool_id(GET_NEW_REQUEST_ID_TOOL_ID_PATH, "get_new_requestID")
-    tool_ids += _optional_tool_id(HUMAN_ESCALATION_TOOL_ID_PATH, "request_human_escalation")
-    tool_ids += _optional_tool_id(UPDATE_STATE_PRIORITY_TOOL_ID_PATH, "update_state_priority")
+    for label in optional_tool_labels:
+        tool_ids += _optional_tool_id(loaded_tool_ids, label)
 
     patch = {
         "firstMessage": first_message,
