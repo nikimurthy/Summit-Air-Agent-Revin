@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from datetime import datetime
 
 from flask import Flask, request, jsonify
@@ -433,6 +434,38 @@ _HANDLERS = {
     "get_scheduling_config": lambda args: _handle_get_scheduling_config(),
     "save_service_request": lambda args: _handle_save_service_request(args),
 }
+
+
+#TEMPORARY DEBUG ROUTE — remove once the check_availability/book_appointment mismatch is diagnosed.
+#Read-only: dumps a technician's raw appointment rows, including SQLite's own type of each
+#value, so we can see exactly what's stored on Render's live disk rather than guessing.
+@app.route("/debug/appointments/<int:technician_id>", methods=["GET"])
+def debug_appointments(technician_id):
+    connection = sqlite3.connect("summit_air.db")
+    rows = connection.execute(
+        """
+        SELECT id, technician_id, typeof(technician_id), start_time, typeof(start_time),
+               end_time, typeof(end_time), service_request_id
+        FROM appointments
+        WHERE technician_id = ?
+        ORDER BY start_time
+        """,
+        (technician_id,),
+    ).fetchall()
+    connection.close()
+    return jsonify([
+        {
+            "id": row[0],
+            "technician_id": row[1],
+            "technician_id_type": row[2],
+            "start_time": row[3],
+            "start_time_type": row[4],
+            "end_time": row[5],
+            "end_time_type": row[6],
+            "service_request_id": row[7],
+        }
+        for row in rows
+    ])
 
 
 @app.route("/vapi/tool-calls", methods=["POST"])

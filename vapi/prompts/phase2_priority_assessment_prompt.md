@@ -476,7 +476,7 @@ DO NOT:
 Priority Assessment is complete when:
 
 1. The issue is sufficiently understood.
-2. A supported priority has been determined.
+2. A supported priority has been determined and saved using `update_state_priority`
 3. The next step has been established.
 4. `update_state_priority` succeeds.
 5. The backend provides the appropriate next phase.

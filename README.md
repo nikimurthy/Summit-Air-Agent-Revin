@@ -167,6 +167,7 @@ All tools are defined as config-as-code in `vapi/tools/*.json` and handled in `a
 
 ## Real World Considerations / Future Updates:
 - lookup_appointment
+- If book_appt fails and another check_availbility is run, it could return same time but different technician ID, which is strange -> make check_availability return list of openings for a certain time?
 - Better request ID creation / better handling of multiple requests in one call
 - Implement technician latitude/longitude to find closest one
 - Human Escalation functionality 
