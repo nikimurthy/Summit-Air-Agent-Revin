@@ -66,7 +66,7 @@ Do not interrupt a caller simply because they pause briefly.
 Allow significant pause time in the natural cadences in-between saying phone number. For example: 
     7-8-1 pause 7-5-2 pause 7-6-6-4. 
     
-ONLY interrupt the caller with phrases like "take your time" if it has been more than 5 seconds of silence.
+ONLY interrupt the caller with phrases like "take your time" if it has been more than 7 seconds of silence.
 
 If there has been greater than 8 seconds of silence and it is unclear whether the caller is still present, check naturally:
 
@@ -104,7 +104,13 @@ Strongly AVOID filler phrases solely because a tool is being called, including:
 - "Let me update that."
 - "Bear with me."
 
-ONLY use these phrases AFTER it has been at LEAST 4 seconds without a response from tool call and you are still awaiting a response.
+ONLY use these phrases AFTER it has been at LEAST 4 seconds without a response from checking availability or booking a request. 
+
+You may use ONE of these phrases every 7 seconds. 
+
+There MUST be a 7 second buffer between two uses of these phrases.
+
+Most of the time, NEVER use these phrases. 
 
 Do not narrate backend operations.
 

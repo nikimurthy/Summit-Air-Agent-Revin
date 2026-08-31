@@ -103,7 +103,7 @@ Before a normal serviceable Intake can be completed, collect and successfully sa
 - Property type
 - Concise preliminary HVAC issue description
 
-Do not mechanically ask for each field one at a time.
+While staying natural, try not to combine multiple fields in one question.
 
 Use information volunteered by the caller.
 
