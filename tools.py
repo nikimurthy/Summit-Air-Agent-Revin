@@ -430,8 +430,17 @@ def book_appointment(book_request: BookRequest) -> BookResult:
             ),
         )
         connection.commit()
+        print(
+            f"[appointments] wrote id={cursor.lastrowid} technician_id={book_request.technician_id} "
+            f"customer_name={book_request.customer_name!r} county={book_request.county} "
+            f"start_time={book_request.start_time} end_time={book_request.end_time} "
+            f"service_request_id={book_request.request_id}",
+            flush=True,
+        )
         return BookResult(success=True, appointment_id=cursor.lastrowid)
     except sqlite3.IntegrityError:
+        print(f"[appointments] insert failed (slot no longer available): technician_id={book_request.technician_id} "
+              f"start_time={book_request.start_time} end_time={book_request.end_time}", flush=True)
         return BookResult(success=False)
     finally:
         connection.close()
@@ -507,6 +516,9 @@ def save_service_request(state: CallState) -> None:
     request = state.service_request
     outcome = state.service_outcome
 
+    print(f"[{state.request_id}] save_service_request: final state = {state.to_dict()}, "
+          f"phase={state.phase.value}, availability_windows={request.availability_windows}", flush=True)
+
     connection = sqlite3.connect("summit_air.db")
     connection.execute(
         """
@@ -533,3 +545,4 @@ def save_service_request(state: CallState) -> None:
     )
     connection.commit()
     connection.close()
+    print(f"[{state.request_id}] save_service_request: committed to service_requests table", flush=True)
