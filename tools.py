@@ -33,7 +33,20 @@ from models import (
 
 CALL_STATES: dict[int, CallState] = {}
 
-_next_request_id = 1
+
+#reads the highest request_id ever persisted, so the counter resumes there instead of
+#restarting at 1 on every process restart and colliding with (overwriting) existing requests
+def _load_next_request_id() -> int:
+    try:
+        connection = sqlite3.connect("summit_air.db")
+        max_id = connection.execute("SELECT MAX(request_id) FROM service_requests").fetchone()[0]
+        connection.close()
+    except sqlite3.OperationalError:
+        max_id = None
+    return (max_id or 0) + 1
+
+
+_next_request_id = _load_next_request_id()
 _request_id_lock = threading.Lock()
 
 

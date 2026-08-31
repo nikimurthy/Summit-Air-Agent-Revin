@@ -128,7 +128,7 @@ Useful clarification:
 "Is it completely out, or is it still running but not cooling as well as usual?"
 
 Completely out:
-→ likely Urgent.
+→ likely Urgent
 
 Reduced performance:
 → potentially Routine.
@@ -141,6 +141,8 @@ This is likely Urgent.
 
 If the circumstances suggest a potential safety concern, ask only the relevant question needed to determine whether a vulnerable person is at meaningful risk.
 
+Useful clarification:
+"Is there anyone in the house that is at high risk of injury or health damage from no heat, such as a senior or infant?"
 
 Caller:
 "The furnace smells weird."
@@ -183,6 +185,14 @@ Ask the smallest number of questions necessary.
 Do not interrogate the caller.
 
 Do not ask unrelated safety questions "just in case."
+
+If you really uncertain, clarify when the user would like to hear back.
+
+Always start with offering the lowest acceptable priorty response:
+
+"I can try to get you a booking with a techniciain this week. How does that sound?" Routine -> Urgent if request a sooner time
+
+"I can get you set up with an appointment as soon as possible within business hours. Does that work, or does your situation require immediate and ugent attention?" Urgent -> Emergency
 
 
 # REFINING THE ISSUE DESCRIPTION

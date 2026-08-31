@@ -48,25 +48,11 @@ All prompts and tool definitions are config-as-code under `vapi/` — never edit
 ```yaml
 api_key: "<your Vapi API key>"
 ```
-Then, after editing a phase prompt (`vapi/prompts/*.md`) or `vapi/prompts/first_message.txt`:
+After editing a phase prompt (`vapi/prompts/*.md`) or `vapi/prompts/first_message.txt`:   python3 vapi/publish_prompts.py
 
-```
-To publish:
-python3 vapi/publish_prompts.py
-```
+After editing an existing tool's definition (`vapi/tools/<label>.json`): python3 vapi/update_tool.py <label>
 
-After editing an existing tool's definition (`vapi/tools/<label>.json`):
-
-```
-python3 vapi/update_tool.py <label>
-```
-
-To add a brand-new tool for the first time:
-
-```
-python3 vapi/create_tool.py <label>
-```
-
+To add a brand-new tool for the first time:  python3 vapi/create_tool.py <label>
 (records the new tool's id in `vapi/tools/tool_ids.txt`, which `publish_prompts.py` reads automatically)
 
 **Never click Publish in the Vapi dashboard** — it reverts to stale cached content. The scripts above are the only source of truth.
@@ -181,10 +167,11 @@ All tools are defined as config-as-code in `vapi/tools/*.json` and handled in `a
 
 ## Real World Considerations / Future Updates:
 - lookup_appointment
+- Better request ID creation / better handling of multiple requests in one call
 - Implement technician latitude/longitude to find closest one
 - Human Escalation functionality 
 - Appointment schuduling that exists beyond half-hour marks
-- Handle multi-location issues better
+- Handle multi-location issues
 - Add specific technician availability rather than assuming all technicians are available outside appointment slots
 - Change check_availability logic to loop through 30-min increments of the availability slots
 - How quickly should it enable human escalation if requested immediately?
